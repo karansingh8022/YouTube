@@ -93,3 +93,8 @@ userSchema.methods.generateRefreshToken = function(){
 
 
 export const User = model("User", userSchema);
+
+
+
+
+//NOTE: read about jwt and bcrypt library
