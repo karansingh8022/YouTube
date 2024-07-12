@@ -2,6 +2,7 @@
 
 import dotenv from "dotenv";
 import connectDB from "./db/index.js";
+import { app } from "./app.js";
 
 //you have to update your json script as "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js",
 //--experimental-json-modules: This flag is specific to enabling experimental support for JSON modules in Node.js.
@@ -9,7 +10,22 @@ dotenv.config({
     path: './env',
 })
 
-connectDB();
+const port = process.env.PORT || 8000;
+
+//connectDB also gets a promise
+connectDB()
+.then(()=>{
+    app.on("error", (error)=>{
+        console.log(`ERR connecting db in src/index.js: ${error}`);
+    })
+
+    app.listen(port, ()=>{
+        console.log(`Server is running on port ${port}`);
+    })
+})
+.catch((error)=>{
+    console.log(`DB connection failed in src/index.js: ${error}`);
+})
 
 
 
