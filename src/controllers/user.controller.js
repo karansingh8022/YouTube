@@ -40,7 +40,7 @@ const registerUser = asyncHandler( async (req, res)=>{
     if( 
         [fullName, email, username, password].some( (field) => field?.trim() === "" ) 
     ) {
-        throw new ApiError(400, "All fields are required and compulsary")
+        throw new ApiError(400, "registerUser!!! All fields are required and compulsary")
     }
 
 
@@ -50,7 +50,7 @@ const registerUser = asyncHandler( async (req, res)=>{
         $or: [ { username }, { email } ]
     } )
 
-    if(existedUser) { throw new ApiError(400, "User with username or email already exists") }
+    if(existedUser) { throw new ApiError(400, "registerUser!!! User with username or email already exists") }
 
     //***check for images, check for avatar
     //files is given by multer: first we keep the files on our disk and then store it in cloudinary
@@ -69,14 +69,20 @@ const registerUser = asyncHandler( async (req, res)=>{
     if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) 
     coverImageLocalPath = req.files.coverImage[0].path;
 
-    if(!avatarLocalPath) { throw new ApiError(400, "Avatar file is required") }
+    if(!avatarLocalPath) { throw new ApiError(400, "registerUser!!! Avatar file is required") }
 
 
     //**upload them to cloudinary, avatar
-    const avatar = await uploadOnCloudinary(avatarLocalPath);
-    const coverImage = await uploadOnCloudinary(coverImageLocalPath);
-    
-    if(!avatar) { throw new ApiError(400, "failed to upload avatar on cloundinary") }
+    let avatar;
+    if(avatarLocalPath)
+    avatar = await uploadOnCloudinary(avatarLocalPath);
+
+    let coverImage;
+    if(coverImageLocalPath)
+    coverImage = await uploadOnCloudinary(coverImageLocalPath);
+
+    // console.log(avatar);
+    if(!avatar) { throw new ApiError(400, "registerUser!!! failed to upload avatar on cloundinary") }
 
 
     //***create user object - create entry in db
@@ -94,12 +100,12 @@ const registerUser = asyncHandler( async (req, res)=>{
     //to select what field you do not required
     const createdNewUser = await User.findById(newUser._id).select( "-password -refreshToken" );
     
-    if(!createdNewUser) { throw new ApiError(500, "Something went wrong while creating a user") }
+    if(!createdNewUser) { throw new ApiError(500, "registerUser!!! Something went wrong while creating a user") }
 
     //**return res
     return res
     .status(201)
-    .json( new ApiResponse(200, createdNewUser, "User registered successfully") )
+    .json( new ApiResponse(200, createdNewUser, "registerUser!!! User registered successfully") )
 
 } )
 
@@ -110,7 +116,9 @@ const loginUser = asyncHandler( async (req, res) => {
     //**get data from frontend
     const { username, email, password } = req.body;
 
-    if(!username && !email) { throw new ApiError(400, "loginUser!! username or email is required") }
+    
+    if(!username && !email) 
+    { throw new ApiError(400, "loginUser!! username or email is required") }
 
     //**find the user
     const user = await User.findOne({
@@ -129,7 +137,7 @@ const loginUser = asyncHandler( async (req, res) => {
 
     //**send cookie
     //you get many unwanted fields too in user so in order to send selected fields to the user
-    const loggedInUser = await User.findById(user._id).select( "-password", "-refreshToken" );
+    const loggedInUser = await User.findById(user._id).select( "-password -refreshToken" );
 
     //this is done so the noone can alter cookie from the browser and it can be altered only by server
     const options = {

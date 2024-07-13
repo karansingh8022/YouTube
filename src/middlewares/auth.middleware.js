@@ -14,7 +14,7 @@ const verifyJWT = asyncHandler ( async(req, res, next) => {
         const decodedToken = Jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
     
         //get the user to set the user in middleware : decodedToken has _id as we stored in jwt.sign()
-        const user = await User.findById(decodedToken?._id).select( "-password", "-refreshToken" );
+        const user = await User.findById(decodedToken?._id).select( "-password -refreshToken" );
     
         if(!user) { throw new ApiError(401, "verifyJWT!! invalid access token") }
     
