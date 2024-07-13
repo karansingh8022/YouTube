@@ -6,3 +6,5 @@ class ApiResponse {
         this.success = (statusCode < 400); //this not hard and fast rule
     }
 }
+
+export { ApiResponse };
