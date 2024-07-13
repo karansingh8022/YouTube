@@ -8,7 +8,7 @@ router.route("/register").post(
     upload.fields([
         {
             name: "avatar",
-            maxCount: 1,
+            maxCount: 2,  //it will store only one but will not give error
         },
         {
             name: "coverImage",

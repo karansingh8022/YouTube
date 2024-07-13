@@ -7,7 +7,7 @@ import { app } from "./app.js";
 //you have to update your json script as "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js",
 //--experimental-json-modules: This flag is specific to enabling experimental support for JSON modules in Node.js.
 dotenv.config({
-    path: './env',
+    path: './.env',
 })
 
 const port = process.env.PORT || 8000;

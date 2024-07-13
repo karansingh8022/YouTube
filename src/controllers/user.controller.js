@@ -28,9 +28,21 @@ const registerUser = asyncHandler( async (req, res)=>{
     if(existedUser) { throw new ApiError(400, "User with username or email already exists") }
 
     //***check for images, check for avatar
-    //files is given by multer
-    const avatarLocalPath = req.files?.avatar[0]?.path;
-    const coverImageLocalPath = req.files?.coverImage[0]?.path;
+    //files is given by multer: first we keep the files on our disk and then store it in cloudinary
+    
+
+    //using optional chaining may give you error of cannot read properties of undefined, this is a problem of javascript
+    // const avatarLocalPath = req.files?.avatar[0]?.path; //we get an array of avatar therefore avatar[0]
+    // const coverImageLocalPath = req.files?.coverImage[0]?.path;
+
+    let avatarLocalPath;
+    let coverImageLocalPath;
+
+    if(req.files && Array.isArray(req.files.avatar) && req.files.avatar.length > 0) 
+    avatarLocalPath = req.files.avatar[0].path;
+
+    if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) 
+    coverImageLocalPath = req.files.coverImage[0].path;
 
     if(!avatarLocalPath) { throw new ApiError(400, "Avatar file is required") }
 
@@ -38,7 +50,7 @@ const registerUser = asyncHandler( async (req, res)=>{
     //**upload them to cloudinary, avatar
     const avatar = await uploadOnCloudinary(avatarLocalPath);
     const coverImage = await uploadOnCloudinary(coverImageLocalPath);
-
+    
     if(!avatar) { throw new ApiError(400, "failed to upload avatar on cloundinary") }
 
 
@@ -71,7 +83,7 @@ const registerUser = asyncHandler( async (req, res)=>{
 //check if registerUser is functioning properly
 // const registerUser = asyncHandler( async (req, res) => {
 //     res.status(200).json({
-//         message: "ok",
+//         message: "karan singh",
 //     })
 // } )
 
