@@ -4,6 +4,7 @@ import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import Jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 
 
@@ -444,6 +445,75 @@ const getUserChannelProfile = asyncHandler( async (req, res) => {
 
 
 
+const getUserWatchHistory = asyncHandler( async (req, res) => {
+    //you take user
+    //you take the watchHistory
+    //you go to the videos
+    //now you go to the owner to the owner of the videos
+    //now you again to the user from the owner to get the user detail of the owner
+    //you modify the details of the user that you want to keep in the owner
+    //you modify the owner field how it give output to the fronted 
+
+    const user = await User.aggregate([
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(req.user._id)
+            }
+        },
+        {
+            $lookup: {
+                from: "videos",
+                localField: "watchHistory",
+                foreignField: "_id",
+                as: "watchHistory",
+                pipeline: [
+                    {
+                        //you are now in vedios schema and you are trying to get the owner of the vedio which is in user
+                        $lookup: {
+                            from: "users",
+                            localField: "owner",
+                            foreignField: "_id",
+                            as: "owner",
+                            pipeline: [ 
+                                {
+                                    //you are getting many fields of the user and you decide what you want to keep in the owner
+                                    $project: {
+                                        username: 1,
+                                        avatar: 1,
+                                        fullName: 1
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        //after this you will get owner which is an array and in its 0th element you will all the data so we can modify if for the frontend person
+                        $addFields: {
+                            //override the owner field
+                            owner: {
+                                $first: "$owner",
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        
+    ])
+
+
+    if(!user?.length) { new ApiError(401, "getUserWatchHistory!!! WatchHistory cannot be found") }
+
+    return res
+    .status(200)
+    .json( new ApiResponse(
+        200, 
+        user[0].watchHistory,
+        "getUserWatchHistory!!! watchHistory fetched successfully"
+    ))
+} )
+
+
 export { 
     registerUser, 
     loginUser, 
@@ -454,7 +524,8 @@ export {
     updateAccountDetails,
     updateUserAvatar,
     updateUserCoverImage,
-    getUserChannelProfile
+    getUserChannelProfile,
+    getUserWatchHistory
 };
 
 
