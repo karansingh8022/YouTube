@@ -17,7 +17,7 @@ const uploadOnCloudinary = async (localFilePath) => {
         })
 
         // console.log(`file is uploaded on cloudinary: ${response}`);
-        fs.unlinkSync(localFilePath);
+        fs.unlinkSync(localFilePath); //if same file is uploaded in avatar and coverImage then in local it is saved only once and it get unlink first for avatar and give error for coverImage therefor please upload different image
         return response;
         
     } catch (error) {
