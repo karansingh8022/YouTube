@@ -239,6 +239,31 @@ const refreshAccessToken = asyncHandler( async (req, res) => {
 
 
 
+const changeCurrentPassword = asyncHandler( async(req, res) => {
+    //**get the old and new password
+    const { oldPassword, newPassword } = req.body;
+
+    //we will be needing user and verify whether the user is logged in and he is changing the password which can ve done by verifyJWT
+    //**get the user from middleware
+    const user = await User.findById(req.user?._id);
+
+    if(!user) { throw new ApiError(401, "changeCurrentPassword!!! user not authorized") }
+
+    //**verify the password
+    const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
+
+    if(!isPasswordCorrect) { throw new ApiError(401, "changeCurrentPassword!!! password is incorrect") }
+
+    //**update the password */
+    user.password = newPassword;
+    await user.save({validateBeforeSave: false});
+
+    return res
+    .status(200)
+    .json( new ApiResponse(200, {}, "changeCurrentPassword!!! Password is successfully changed") )
+
+} )
+
 
 
 
@@ -247,6 +272,7 @@ export {
     loginUser, 
     logoutUser, 
     refreshAccessToken,
+    changeCurrentPassword
 };
 
 
