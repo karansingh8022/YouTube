@@ -307,7 +307,7 @@ const updateUserAvatar = asyncHandler( async (req, res) => {
     //we will be using multer middleware to update files and verifyJWT to verify the user
     
     // console.log(req.file);
-    //**get the path */
+    //**get the path: we have used upload.single in the middleware that is why here we get file only */
     const avatarLocalPath = req.file?.path;
 
     if(!avatarLocalPath) { throw new ApiError(401, "updateUserAvatar!!! file path is not found") }
